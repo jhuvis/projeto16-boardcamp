@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@joi/date": "^2.1.0",
     "express": "^4.17.1",
     "joi": "^17.7.0",
     "pg": "^8.5.1"
