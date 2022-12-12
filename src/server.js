@@ -2,6 +2,7 @@ import express from "express";
 import DateExtension from '@joi/date';
 import JoiImport from 'joi';
 import connection from './database/database.js';
+import cors from 'cors';
 
 const joi = JoiImport.extend(DateExtension);
 
@@ -29,6 +30,7 @@ const rentalsSchema = joi.object({
 
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get("/categories", async (req, res) => {
@@ -381,13 +383,22 @@ app.get("/rentals", async (req, res) =>
     {
       const games = await connection.query(`SELECT games.id, games.name, games."categoryId", categories.name as "categoryName" 
       FROM games JOIN categories ON games."categoryId" = categories.id WHERE games.id=$1`, [rentals.rows[i].gameId]);
+
+      const rentDate = new Date(rentals.rows[i].rentDate);
+      let returnDate = rentals.rows[i].returnDate;
+      if(returnDate)
+      {
+        returnDate = new Date(rentals.rows[i].returnDate);
+        returnDate = (returnDate.getFullYear() + "-" + ((returnDate.getMonth() + 1)) + "-" + (returnDate.getDate()));
+      }
+
       tudo[i] = {
         id: rentals.rows[i].id,
         customerId: rentals.rows[i].customerId,
         gameId: rentals.rows[i].gameId,
-        rentDate: rentals.rows[i].rentDate,
+        rentDate:  (rentDate.getFullYear() + "-" + ((rentDate.getMonth() + 1)) + "-" + (rentDate.getDate())),
         daysRented: rentals.rows[i].daysRented,
-        returnDate: rentals.rows[i].returnDate, 
+        returnDate: returnDate, 
         originalPrice: rentals.rows[i].originalPrice,
         delayFee: rentals.rows[i].delayFee,
         customer: customers.rows[0],
@@ -413,13 +424,22 @@ app.get("/rentals", async (req, res) =>
     for(let i = 0; i < rentals.rows.length; i++) 
     {
       const customers = await connection.query(`SELECT id, name FROM customers WHERE id = $1`, [rentals.rows[i].customerId]);
+
+      const rentDate = new Date(rentals.rows[i].rentDate);
+      let returnDate = rentals.rows[i].returnDate;
+      if(returnDate)
+      {
+        returnDate = new Date(rentals.rows[i].returnDate);
+        returnDate = (returnDate.getFullYear() + "-" + ((returnDate.getMonth() + 1)) + "-" + (returnDate.getDate()));
+      }
+
       tudo[i] = {
         id: rentals.rows[i].id,
         customerId: rentals.rows[i].customerId,
         gameId: rentals.rows[i].gameId,
-        rentDate: rentals.rows[i].rentDate,
+        rentDate: (rentDate.getFullYear() + "-" + ((rentDate.getMonth() + 1)) + "-" + (rentDate.getDate())),
         daysRented: rentals.rows[i].daysRented,
-        returnDate: rentals.rows[i].returnDate, 
+        returnDate: returnDate, 
         originalPrice: rentals.rows[i].originalPrice,
         delayFee: rentals.rows[i].delayFee,
         customer: customers.rows[0],
@@ -439,13 +459,23 @@ app.get("/rentals", async (req, res) =>
       const customers = await connection.query(`SELECT id, name FROM customers WHERE id = $1`, [rentals.rows[i].customerId]);
       const games = await connection.query(`SELECT games.id, games.name, games."categoryId", categories.name as "categoryName" 
       FROM games JOIN categories ON games."categoryId" = categories.id WHERE games.id=$1`, [rentals.rows[i].gameId]);
+
+      const rentDate = new Date(rentals.rows[i].rentDate);
+      let returnDate = rentals.rows[i].returnDate;
+      if(returnDate)
+      {
+        returnDate = new Date(rentals.rows[i].returnDate);
+        returnDate = (returnDate.getFullYear() + "-" + ((returnDate.getMonth() + 1)) + "-" + (returnDate.getDate()));
+      }
+
+
       tudo[i] = {
         id: rentals.rows[i].id,
         customerId: rentals.rows[i].customerId,
         gameId: rentals.rows[i].gameId,
-        rentDate: rentals.rows[i].rentDate,
+        rentDate: (rentDate.getFullYear() + "-" + ((rentDate.getMonth() + 1)) + "-" + (rentDate.getDate())),
         daysRented: rentals.rows[i].daysRented,
-        returnDate: rentals.rows[i].returnDate, 
+        returnDate: returnDate, 
         originalPrice: rentals.rows[i].originalPrice,
         delayFee: rentals.rows[i].delayFee,
         customer: customers.rows[0],
@@ -489,6 +519,5 @@ app.delete("/rentals/:id", async (req, res) =>
 });
 
 
-app.listen(4000, () => {
-  console.log("Server listening on port 4000.");
-});
+const port = process.env.PORT || 4000;
+app.listen(port, () => console.log(`Server running in port: ${port}`));

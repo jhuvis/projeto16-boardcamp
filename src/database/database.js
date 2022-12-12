@@ -1,13 +1,13 @@
 import pg from 'pg';
+import dotenv from "dotenv";
+dotenv.config();
 
 const { Pool } = pg;
 
 const connection = new Pool({
-  user: "postgres",
-  host: "localhost",
-  port: 5432,
-  database: "boardcamp",
-  password: "1999",
+  connectionString: process.env.DATABASE_URL,
+  ssl: true,
 });
+
 
 export default connection;
